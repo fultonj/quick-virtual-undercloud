@@ -27,7 +27,7 @@ qemu-img resize rhel-guest-image-7.2-20150821.0.x86_64.qcow2 +30G
 virt-customize -a rhel-guest-image-7.2-20150821.0.x86_64.qcow2 --run-command 'echo -e "d\nn\n\n\n\n\nw\n" | fdisk /dev/sda'
 virt-customize -a rhel-guest-image-7.2-20150821.0.x86_64.qcow2 --run-command 'xfs_growfs /'
 virt-filesystems --long -h --all -a rhel-guest-image-7.2-20150821.0.x86_64.qcow2 
-virt-customize -a  --run-command 'cp /etc/sysconfig/network-scripts/ifcfg-eth{0,1} && sed -i s/DEVICE=.*/DEVICE=eth1/g /etc/sysconfig/network-scripts/ifcfg-eth1'
+virt-customize -a rhel-guest-image-7.2-20150821.0.x86_64.qcow2 --run-command 'cp /etc/sysconfig/network-scripts/ifcfg-eth{0,1} && sed -i s/DEVICE=.*/DEVICE=eth1/g /etc/sysconfig/network-scripts/ifcfg-eth1'
 qemu-img create -f qcow2 -b rhel-guest-image-7.2-20150821.0.x86_64.qcow2 undercloud.qcow2
 virt-customize -a undercloud.qcow2 --run-command 'yum remove cloud-init* -y'
 virt-customize -a undercloud.qcow2 --root-password password:Redhat01
