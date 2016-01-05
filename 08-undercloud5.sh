@@ -86,5 +86,3 @@ ironic node-list
 
 echo "Set up daemon for iPXE hack as described in ipxe_workaround.txt"
 echo "https://bugzilla.redhat.com/show_bug.cgi?id=1234601#c19"
-echo "Then try to the following..."
-echo "time openstack baremetal introspection bulk start"
