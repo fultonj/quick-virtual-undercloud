@@ -77,12 +77,19 @@ jq . << EOF > ~/instackenv.json
 }
 EOF
 
-
+# validate json
 curl -O https://raw.githubusercontent.com/rthallisey/clapper/master/instackenv-validator.py
+python instackenv-validator.py --file instackenv.json
+
+# install the ssh key and load the env variables to use ironic
 ssh-copy-id -i ~/.ssh/id_rsa.pub stack@192.168.122.1
 source ~/stackrc
 
+# import the definition of the nodes into ironic
+ironic node-list
+openstack baremetal import --json instackenv.json
 ironic node-list
 
+# if virutal, set up the iPXE hack
 echo "Set up daemon for iPXE hack as described in ipxe_workaround.txt"
 echo "https://bugzilla.redhat.com/show_bug.cgi?id=1234601#c19"
