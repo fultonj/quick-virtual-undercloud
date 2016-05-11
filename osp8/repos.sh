@@ -2,9 +2,10 @@
 # -------------------------------------------------------
 # configures undercloud VM with all necessary repos
 # -------------------------------------------------------
+OSPV=8
 URL=http://192.168.122.1/repos
 RPM_DIR=~/rpms/
-ISO_DIR=~/isos/
+ISO_DIR=~/iso/
 REPOS=(
     rhel-7-server-rpms 
     rhel-7-server-extras-rpms 
@@ -30,6 +31,12 @@ rm -rf $dir
 echo "The following repository files have been put in place:"
 ls -l /etc/yum.repos.d/
 
+echo "However, for OSP, only version $OSPV will be enabled"
+# disable all OSP repos
+sudo yum-config-manager --disable rhel-7-server-openstack-*
+# enable only the desired version of OSP
+sudo yum-config-manager --enable rhel-7-server-openstack-$OSPV*
+
 echo "The following repositories are active:"
 sudo yum repolist
 # -------------------------------------------------------
@@ -49,6 +56,9 @@ curl -O $URL/utils/all
 for x in $(cat all); do curl $URL/utils/$x -O ; done
 sudo yum localinstall *.rpm -y 
 popd
+
+echo "RPMs installed, removing original cache"
+rm -rf $RPM_DIR
 # -------------------------------------------------------
 echo "Downloding Ceph ISO"
 if [ -d "$ISO_DIR" ]; then
