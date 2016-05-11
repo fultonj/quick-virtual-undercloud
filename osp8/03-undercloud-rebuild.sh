@@ -3,7 +3,7 @@
 undercloud_name="undercloud8"
 undercloud_qcow=$undercloud_name.qcow2
 undr=192.168.122.253
-cwd=/home/jfulton/git/hub/quick-virtual-undercloud/osp8
+cwd=/home/jfulton/git/hub/quick-virtual-undercloud/osp8/helpers
 key=$(cat ~/.ssh/id_rsa.pub)
 # -------------------------------------------------------
 if [[ $(whoami) != "root" ]]; 
@@ -87,9 +87,9 @@ ssh root@$undr 'chmod 0440 /etc/sudoers.d/stack'
 ssh root@$undr "mkdir /home/stack/.ssh/; chmod 700 /home/stack/.ssh/; echo $key > /home/stack/.ssh/authorized_keys; chmod 600 /home/stack/.ssh/authorized_keys; chcon system_u:object_r:ssh_home_t:s0 /home/stack/.ssh ; chcon unconfined_u:object_r:ssh_home_t:s0 /home/stack/.ssh/authorized_keys; chown -R stack:stack /home/stack/.ssh/ "
 
 #echo "Copying up scripts to be run on $undr"
-scp /tmp/nodes.txt stack@$undr:/home/stack/
-#scp $cwd/repos.sh stack@$undr:/home/stack/
-#scp $cwd/ansible-install.sh stack@$undr:/home/stack/
+scp /tmp/nodes.txt stack@$undr:/home/stack/macs.txt
+scp $cwd/repos.sh stack@$undr:/home/stack/
+scp $cwd/ansible-install.sh stack@$undr:/home/stack/
 
 echo "$undr is ready"
 ssh root@$undr "uname -a"
