@@ -1,22 +1,15 @@
 #!/usr/bin/env bash
 # -------------------------------------------------------
-REPOS=0
 INSTACK=1
-NEW_SSH_KEY=0
-INSTALL=0
-IMAGES=0
-NEUTRON=0
-FLAVOR=0
-IRONIC=0
+NEW_SSH_KEY=1
+INSTALL=1
+IMAGES=1
+NEUTRON=1
+FLAVOR=1
+IRONIC=1
 HYPERVISOR_IP=192.168.122.1
 INSTACKENV=~/instackenv.json
-# -------------------------------------------------------
-if [ $REPOS -eq 1 ]; then 
-    cp ~/quick-virtual-undercloud/osp8/repos.sh .
-    sh repos.sh
-    cp ~/quick-virtual-undercloud/osp8/ansible-install.sh .
-    sh ansible-install.sh 
-fi
+SRC=~/quick-virtual-undercloud/osp8
 # -------------------------------------------------------
 if [ $INSTACK -eq 1 ]; then 
     # generate an SSH key and install it on dom0
@@ -79,6 +72,7 @@ if [ $INSTACK -eq 1 ]; then
 
     echo ""
     echo "Generated $INSTACKENV. Validating..."
+    cp $SRC/helpers/instackenv-validator.py . 
     python instackenv-validator.py --file $INSTACKENV
     echo ""
 fi
@@ -87,8 +81,7 @@ if [ $INSTALL -eq 1 ]; then
     echo "INSTALL THE UNDERCLOUD"
     sudo yum install -y python-tripleoclient
     # sudo yum install -y python-rdomanager-oscplugin rhosp-director-images rhosp-director-images-ipa
-    cp ~/quick-virtual-undercloud/osp8/undercloud.conf ~/undercloud.conf
-
+    cp $SRC/helpers/undercloud.conf ~/undercloud.conf
     echo "verifying hostname is set for undercloud install"
     if sudo hostnamectl --static ; then
 	echo "hostnamectl is working"
@@ -102,17 +95,14 @@ if [ $INSTALL -eq 1 ]; then
 	sudo setenforce 1
 	echo "SELinux is enabled"
     fi
-
     time openstack undercloud install
-    
-    # problem... 
-    #   sudo yum install nss-softokn-freebl.i686
-    # root cause seems to be that rhel7 server (from image) has newer versions
-    # one solution might be to put newer glibc common pacakges in repos
-
 fi
 # -------------------------------------------------------
 if [ $IMAGES -eq 1 ]; then 
+    source ~/stackrc
+    echo "Installing images"
+    sudo yum install rhosp-director-images rhosp-director-images-ipa -y 
+
     echo "Copying images from /usr/share/ to ~/images/"
     mkdir ~/images/
     cp /usr/share/rhosp-director-images/{ironic-python-agent.tar,overcloud-full.tar} ~/images/
@@ -130,6 +120,7 @@ if [ $IMAGES -eq 1 ]; then
 fi
 # -------------------------------------------------------
 if [ $NEUTRON -eq 1 ]; then 
+    source ~/stackrc
     echo "SET DNS SERVER FOR PROVISIONING NETWORK"
     neutron subnet-list
     sub=`neutron subnet-list -f csv | tail -1 | awk 'BEGIN { FS = "," } ; { print $1 }' | sed s/\"//g`
@@ -138,6 +129,7 @@ if [ $NEUTRON -eq 1 ]; then
 fi
 # -------------------------------------------------------
 if [ $FLAVOR -eq 1 ]; then 
+    source ~/stackrc
     echo "Listing existing flavors (installed by osp8 now)"
     openstack flavor list
 
@@ -145,6 +137,7 @@ if [ $FLAVOR -eq 1 ]; then
 fi
 # -------------------------------------------------------
 if [ $IRONIC -eq 1 ]; then 
+    source ~/stackrc
     echo "Importing nodes from $INSTACKENV into Ironic"
     ironic node-list
     openstack baremetal import --json instackenv.json
@@ -166,11 +159,11 @@ if [ $IRONIC -eq 1 ]; then
     #     ironic node-update $node1 replace properties/capabilities=profile:compute,boot_option:local
     # done
     # 
-    # echo "Ironic node properties have been set to the following:"
-    # for ironic_id in $(ironic node-list | awk {'print $2'} | grep -v UUID | egrep -v '^$'); do 
-    #     echo $ironic_id; 
-    #     ironic node-show $ironic_id  | egrep "memory_mb|profile" ; 
-    #     echo ""; 
-    # done
-
+    echo "Ironic node properties are set to the following:"
+    for ironic_id in $(ironic node-list | awk {'print $2'} | grep -v UUID | egrep -v '^$'); do 
+        echo $ironic_id; 
+        ironic node-show $ironic_id  | egrep "memory_mb|profile" ; 
+        echo ""; 
+    done
+    echo "tag each node for each role manually for now"
 fi
