@@ -5,21 +5,23 @@
 URL=http://192.168.122.1/repos
 RPM_DIR=~/rpms/
 ISO_DIR=~/isos/
+REPOS=(
+    rhel-7-server-rpms 
+    rhel-7-server-extras-rpms 
+    rhel-7-server-rh-common-rpms
+    rhel-7-server-openstack-8-rpms 
+    rhel-7-server-openstack-8-director-rpms 
+    rhel-7-server-openstack-7.0-rpms 
+    rhel-7-server-openstack-7.0-director-rpms 
+)
 # -------------------------------------------------------
-rhel_repo=$URL/rhel-7-server-rpms/RH7.repo
-extras_repo=$URL/rhel-7-server-extras-rpms/RH7-EXTRAS.repo
-common_repo=$URL/rhel-7-server-rh-common-rpms/RH7-COMMON.repo
-osp_repo=$URL/osp8/core/RH7-RHOS-8.0.repo
-dir_repo=$URL/osp8/director/RH7-RHOS-8.0-director.repo
-echo "Removing old repositories for OSP and OSP-Director"
-sudo rm -f /etc/yum.repos.d/RH7*
-
-echo "Installing repositories for OSP and OSP-Director $1"
+echo "Installing repositories"
 dir=/tmp/$(date | md5sum | awk {'print $1'})
 mkdir $dir
 pushd $dir
-for x in $osp_repo $dir_repo $rhel_repo $extras_repo $common_repo; do
-    curl $x -O
+for x in ${REPOS[@]}; do
+    sudo rm -f /etc/yum.repos.d/$x.repo
+    curl $URL/$x/$x.repo -O
     sudo mv -f *.repo /etc/yum.repos.d/
 done
 popd
