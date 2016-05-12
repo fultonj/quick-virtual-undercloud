@@ -138,9 +138,14 @@ fi
 # -------------------------------------------------------
 if [ $IRONIC -eq 1 ]; then 
     source ~/stackrc
+
     echo "Importing nodes from $INSTACKENV into Ironic"
-    ironic node-list
     openstack baremetal import --json instackenv.json
+
+    echo "Assigning the kernel and ramdisk images to all nodes" 
+    openstack baremetal configure boot
+
+    echo "About to introspect the following servers"
     ironic node-list
 
     echo "Starting bulk introspection"
@@ -148,22 +153,31 @@ if [ $IRONIC -eq 1 ]; then
     time openstack baremetal introspection bulk start
     date 
 
-    # if virutal, set up the iPXE hack
-    #echo "Set up daemon for iPXE hack as described in ipxe_workaround.txt"
-    #echo "https://bugzilla.redhat.com/show_bug.cgi?id=1234601#c19"
+    echo "The following *should* be ready to be tagged for a role"
+    ironic node-list
 
-    # -------------------------------------------------------
-    # need to fix tagging
-    # for ironic_id in $(ironic node-list | awk {'print $2'} | grep -v UUID | egrep -v '^$'); do
-    #     ironic node-update $node0 replace properties/capabilities=profile:control,boot_option:local
-    #     ironic node-update $node1 replace properties/capabilities=profile:compute,boot_option:local
-    # done
-    # 
+    echo "Tagging nodes for their roles"
+    NODE_COUNT=$(ironic node-list | awk {'print $2'} | grep -v UUID | egrep -v '^$' | wc -l)
+    NUM=0    
+    for ironic_id in $(ironic node-list | awk {'print $2'} | grep -v UUID | egrep -v '^$'); do
+	NUM=$[$NUM + 1]
+	if [[ $NUM -eq $NODE_COUNT ]]; then
+	    # only the last node is a controller (this is a small deployment)
+            ironic node-update $ironic_id replace properties/capabilities=profile:control,boot_option:local
+	else
+	    # all other nodes are computes
+            ironic node-update $ironic_id replace properties/capabilities=profile:compute,boot_option:local
+	fi
+    done
+
     echo "Ironic node properties are set to the following:"
     for ironic_id in $(ironic node-list | awk {'print $2'} | grep -v UUID | egrep -v '^$'); do 
-        echo $ironic_id; 
         ironic node-show $ironic_id  | egrep "memory_mb|profile" ; 
         echo ""; 
     done
-    echo "tag each node for each role manually for now"
+
+    echo ""
+    echo "Undercloud should now be ready for Overcloud"
+    echo ""
+
 fi
