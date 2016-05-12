@@ -140,7 +140,7 @@ if [ $IRONIC -eq 1 ]; then
     source ~/stackrc
 
     echo "Importing nodes from $INSTACKENV into Ironic"
-    openstack baremetal import --json instackenv.json
+    openstack baremetal import --json $INSTACKENV
 
     echo "Assigning the kernel and ramdisk images to all nodes" 
     openstack baremetal configure boot
