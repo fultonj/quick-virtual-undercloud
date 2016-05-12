@@ -25,20 +25,20 @@ if [ $ADD -eq 1 ]; then
     echo "CREATING OVERCLOUD VIRTUAL HARDWARE"
     pushd /var/lib/libvirt/images/
     for i in $(echo $VM_COUNT); do 
-	sudo qemu-img create -f qcow2 -o preallocation=metadata overcloud-node$i.qcow2 60G; 
+	sudo qemu-img create -f qcow2 -o preallocation=metadata overcloud-node$i.qcow2 30G; 
+	sudo qemu-img create -f qcow2 -o preallocation=metadata overcloud-ceph-osd$i.qcow2 30G; 
     done
     popd
 
     for i in $(echo $VM_COUNT); do 
 	sudo virt-install --ram 4096 --vcpus 2 --os-variant rhel7 \
 	--disk path=/var/lib/libvirt/images/overcloud-node$i.qcow2,device=disk,bus=virtio,format=qcow2 \
+	--disk path=/var/lib/libvirt/images/overcloud-ceph-osd$i.qcow2,device=disk,bus=virtio,format=qcow2 \
 	--noautoconsole --vnc \
 	--network network:provisioning \
-	--network network:api \
-	--network network:tenant \
-	--network network:storage \
-	--network network:storage-mgmt \
-	--network network:default --name overcloud-node$i \
+	--network network:default \
+	--network network:default \
+	--name overcloud-node$i \
 	--dry-run --print-xml > /tmp/overcloud-node$i.xml; \
 
 	sudo virsh define --file /tmp/overcloud-node$i.xml; 
