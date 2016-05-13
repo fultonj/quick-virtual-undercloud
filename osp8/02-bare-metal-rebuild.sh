@@ -37,7 +37,9 @@ if [ $ADD -eq 1 ]; then
 	--noautoconsole --vnc \
 	--network network:provisioning \
 	--network network:default \
-	--network network:default \
+	--network network:tenant \
+	--network network:api \
+	--network network:storage \
 	--name overcloud-node$i \
 	--dry-run --print-xml > /tmp/overcloud-node$i.xml; \
 
@@ -47,13 +49,17 @@ if [ $ADD -eq 1 ]; then
 
     for i in $(echo $VM_COUNT); do 
 	mac=$(sudo virsh domiflist overcloud-node$i | grep provisioning | awk '{print $5};'); 
-	echo -e "$mac" >> /tmp/nodes.txt; 
+	echo -e "$mac" >> /tmp/macs.txt; 
     done
 
-    #scp /tmp/nodes.txt stack@undercloud:/home/stack/nodes.txt
-    echo ""
-    echo "cp /tmp/nodes.txt ."
-    echo ""
+    if [[ $(ping -c 2 undercloud) ]]; then
+	scp /tmp/macs.txt stack@undercloud:/home/stack/macs.txt
+    else
+	echo "After undercloud is built put macs.txt there"
+	echo "  scp /tmp/nodes.txt stack@undercloud:/home/stack/macs.txt"
+	cp /tmp/macs.txt .
+	ls macs.txt 
+    fi
 
 fi
 # -------------------------------------------------------
