@@ -18,7 +18,7 @@ if [ $DELETE -eq 1 ]; then
     done 
 
     sudo virsh list --all
-    sudo rm -f /tmp/nodes.txt /tmp/overcloud-node*
+    sudo rm -f /tmp/macs.txt /tmp/overcloud-node*
 fi
 # -------------------------------------------------------
 if [ $ADD -eq 1 ]; then 
@@ -56,7 +56,7 @@ if [ $ADD -eq 1 ]; then
 	scp /tmp/macs.txt stack@undercloud:/home/stack/macs.txt
     else
 	echo "After undercloud is built put macs.txt there"
-	echo "  scp /tmp/nodes.txt stack@undercloud:/home/stack/macs.txt"
+	echo "  scp /tmp/macs.txt stack@undercloud:/home/stack/macs.txt"
 	cp /tmp/macs.txt .
 	ls macs.txt 
     fi
