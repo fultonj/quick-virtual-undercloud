@@ -57,7 +57,7 @@ if [ $INSTACK -eq 1 ]; then
 	echo "                ], " >> $INSTACKENV
 	echo "       \"cpu\": \"2\"," >> $INSTACKENV
 	echo "       \"memory\": \"4096\"," >> $INSTACKENV
-	echo "       \"disk\": \"40\"," >> $INSTACKENV
+	echo "       \"disk\": \"60\"," >> $INSTACKENV
 	echo "       \"arch\": \"x86_64\"," >> $INSTACKENV
 	echo "       \"pm_user\": \"stack\"" >> $INSTACKENV
 	NUM=$[$NUM + 1]
