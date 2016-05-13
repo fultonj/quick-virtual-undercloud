@@ -26,7 +26,7 @@ if [ $ADD -eq 1 ]; then
     pushd /var/lib/libvirt/images/
     for i in $(echo $VM_COUNT); do 
 	sudo qemu-img create -f qcow2 -o preallocation=metadata overcloud-node$i.qcow2 60G; 
-	sudo qemu-img create -f qcow2 -o preallocation=metadata overcloud-ceph-osd$i.qcow2 30G; 
+	sudo qemu-img create -f qcow2 -o preallocation=metadata overcloud-ceph-osd$i.qcow2 60G; 
     done
     popd
 
