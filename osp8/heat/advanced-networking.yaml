@@ -62,7 +62,7 @@ parameter_defaults:
   StorageMgmtNetworkVlanID: 4047
 
   # External Networking Access - Public API Access
-  ExternalNetCidr: 192.168.122.1
+  ExternalNetCidr: 192.168.122.1/32
   # Leave room for floating IPs in the External allocation pool (if required)
   ExternalAllocationPools: [{'start': '192.168.122.37', 'end': '192.168.122.48'}]
   # Set to the router gateway on the external network
