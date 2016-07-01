@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # -------------------------------------------------------
-VERSION=7
+VERSION=8
 INSTACK=0
 NEW_SSH_KEY=0
 INSTALL=1
@@ -82,10 +82,10 @@ if [ $INSTALL -eq 1 ]; then
     echo "INSTALL THE UNDERCLOUD"
     if [ $VERSION -eq 7]; then
 	sudo yum install -y python-rdomanager-oscplugin 
-	cp $SRC/helpers/undercloud.conf ~/undercloud.conf # need 7 v
+	cp $SRC/helpers/undercloud.conf.osp7 ~/undercloud.conf # need 7 v
     else
 	sudo yum install -y python-tripleoclient
-	cp $SRC/helpers/undercloud.conf ~/undercloud.conf
+	cp $SRC/helpers/undercloud.conf.osp8 ~/undercloud.conf
     fi
     echo "verifying hostname is set for undercloud install"
     if sudo hostnamectl --static ; then
