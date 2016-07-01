@@ -3,7 +3,7 @@
 undercloud_name="undercloud"
 undercloud_qcow=$undercloud_name.qcow2
 undr=192.168.122.253
-cwd=/home/jfulton/git/hub/quick-virtual-undercloud/osp8/helpers
+cwd=/home/jfulton/git/hub/quick-virtual-undercloud
 # -------------------------------------------------------
 if [[ $(whoami) != "root" ]]; 
     then 
@@ -64,14 +64,16 @@ virt-customize -a $undercloud_qcow --run-command "mkdir /root/.ssh/; chmod 700 /
 
 virt-install --ram 4096 --vcpus 4 --os-variant rhel7 --disk path=/var/lib/libvirt/images/$undercloud_qcow,device=disk,bus=virtio,format=qcow2 --import --noautoconsole --vnc --network network:provisioning --network network:default --network network:api --network network:tenant --network network:storage --network network:storage-mgmt --name $undercloud_name
 
-echo "Waiting for $undercloud_name to boot"
-sleep 30
+echo "Waiting for $undercloud_name to boot and allow to SSH at $undr"
+while [[ ! $(ssh root@$undr "uname") ]]
+do
+    echo "No route to host yet; sleeping 30 seconds"
+    sleep 30
+done
+echo "SSH to $undr is working."
 
 #mac=$(virsh domiflist $undercloud_name | awk '/default/ {print $5};')
 #ip=$(arp -n | grep $mac | awk {'print $1'})
-
-echo "pinging $undercloud_name at $undr"
-ping -c 2 $undr
 
 echo "Updating /etc/hosts"
 ssh root@$undr 'echo "192.168.122.253    undercloud.example.com        undercloud" >> /etc/hosts'
@@ -80,7 +82,7 @@ ssh root@$undr 'echo "192.168.122.1      runcible.example.com          runcible"
 
 echo "Updating /etc/chrony.conf and restarting chronyc"
 ssh root@$undr "cat /dev/null > /etc/chrony.conf"
-ssh root@$undr "echo 'server 192.168.122.251 iburst' >> /etc/chrony.conf"
+ssh root@$undr "echo 'server 192.168.122.252 iburst' >> /etc/chrony.conf"
 ssh root@$undr "echo 'driftfile /var/lib/chrony/drift' >> /etc/chrony.conf"
 ssh root@$undr "echo 'logdir /var/log/chrony' >> /etc/chrony.conf"
 ssh root@$undr "echo 'log measurements statistics tracking' >> /etc/chrony.conf"
@@ -96,10 +98,11 @@ ssh root@$undr 'echo "stack ALL=(root) NOPASSWD:ALL" | tee -a /etc/sudoers.d/sta
 ssh root@$undr 'chmod 0440 /etc/sudoers.d/stack'
 ssh root@$undr "mkdir /home/stack/.ssh/; chmod 700 /home/stack/.ssh/; echo $key > /home/stack/.ssh/authorized_keys; chmod 600 /home/stack/.ssh/authorized_keys; chcon system_u:object_r:ssh_home_t:s0 /home/stack/.ssh ; chcon unconfined_u:object_r:ssh_home_t:s0 /home/stack/.ssh/authorized_keys; chown -R stack:stack /home/stack/.ssh/ "
 
-echo "Copying up scripts to be run on $undr"
+echo "Copying up a copy of this git repo so the next set of scripts may be run on $undr"
+scp -r $cwd/ stack@$undr:/home/stack/
+
+echo "Copying up mac addresses of 'baremetal' nodes as ~/macs.txt on $undr"
 scp /tmp/nodes.txt stack@$undr:/home/stack/macs.txt
-scp $cwd/repos.sh stack@$undr:/home/stack/
-scp $cwd/ansible-install.sh stack@$undr:/home/stack/
 
 echo "$undr is ready"
 ssh root@$undr "uname -a"
