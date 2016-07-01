@@ -9,6 +9,7 @@ NEUTRON=0
 FLAVOR=0
 IRONIC=0
 HYPERVISOR_IP=192.168.122.1
+REPO_IP=192.168.122.252
 INSTACKENV=~/instackenv.json
 SRC=~/quick-virtual-undercloud/osp8
 # -------------------------------------------------------
@@ -82,7 +83,7 @@ if [ $INSTALL -eq 1 ]; then
     echo "INSTALL THE UNDERCLOUD"
     if [ $VERSION -eq 7]; then
 	sudo yum install -y python-rdomanager-oscplugin 
-	cp $SRC/helpers/undercloud.conf.osp7 ~/undercloud.conf # need 7 v
+	cp $SRC/helpers/undercloud.conf.osp7 ~/undercloud.conf 
     else
 	sudo yum install -y python-tripleoclient
 	cp $SRC/helpers/undercloud.conf.osp8 ~/undercloud.conf
@@ -105,19 +106,20 @@ fi
 # -------------------------------------------------------
 if [ $IMAGES -eq 1 ]; then 
     source ~/stackrc
-    echo "Installing images"
-    sudo yum install rhosp-director-images rhosp-director-images-ipa -y 
 
     echo "Copying images from /usr/share/ to ~/images/"
     mkdir ~/images/
     pushd ~/images/
     if [ $VERSION -eq 7]; then
-	wget http://192.168.122.252/repos/images/deploy-ramdisk-ironic-7.3.1-39.tar
-	wget http://192.168.122.252/repos/images/discovery-ramdisk-7.3.1-59.tar
-	wget http://192.168.122.252/repos/images/overcloud-full-7.3.1-59.tar
+	wget http://$REPO_IP/repos/images/deploy-ramdisk-ironic-7.3.1-39.tar
+	wget http://$REPO_IP/repos/images/discovery-ramdisk-7.3.1-59.tar
+	wget http://$REPO_IP/repos/images/overcloud-full-7.3.1-59.tar
     else
+	echo "Installing images with yum"
+	sudo yum install rhosp-director-images rhosp-director-images-ipa -y 
 	cp /usr/share/rhosp-director-images/{ironic-python-agent.tar,overcloud-full.tar} ~/images/
     fi
+    echo "Untaring images"
     for tarfile in *.tar; do tar -xf $tarfile; done
     popd
 
