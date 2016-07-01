@@ -1,16 +1,25 @@
 #!/usr/bin/env bash
 # -------------------------------------------------------
-undercloud_name="undercloud8"
+undercloud_name="undercloud"
 undercloud_qcow=$undercloud_name.qcow2
 undr=192.168.122.253
 cwd=/home/jfulton/git/hub/quick-virtual-undercloud/osp8/helpers
-key=$(cat ~/.ssh/id_rsa.pub)
 # -------------------------------------------------------
 if [[ $(whoami) != "root" ]]; 
     then 
     echo "This must be run as root on your testing hypervisor";
     exit 1
 fi
+# -------------------------------------------------------
+if [[ ! -e ~/.ssh/id_rsa.pub ]]; then
+    if [[ ! -e /home/jfulton/.ssh/id_rsa.pub ]]; then
+	echo "Neither jfulton's nor root's id_rsa.pub exist; exiting."
+	exit 1
+    else
+	cp -f /home/jfulton/.ssh/id_rsa.pub ~/.ssh/id_rsa.pub
+    fi
+fi
+key=$(cat ~/.ssh/id_rsa.pub)
 # -------------------------------------------------------
 echo "Destroying $undercloud_name"
 virsh destroy $undercloud_name
