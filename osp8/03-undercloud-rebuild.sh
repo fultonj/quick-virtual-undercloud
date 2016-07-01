@@ -101,14 +101,6 @@ scp /tmp/nodes.txt stack@$undr:/home/stack/macs.txt
 scp $cwd/repos.sh stack@$undr:/home/stack/
 scp $cwd/ansible-install.sh stack@$undr:/home/stack/
 
-echo "Configuring yum repositories on undercloud"
-ssh root@$undr "sh /home/stack/repos.sh"
-
-echo "Instaling Ansible on undercloud"
-ssh root@$undr "sh /home/stack/ansible-install.sh"
-
-
-
 echo "$undr is ready"
 ssh root@$undr "uname -a"
 echo ""
