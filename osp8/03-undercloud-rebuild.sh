@@ -17,6 +17,7 @@ if [[ ! -e ~/.ssh/id_rsa.pub ]]; then
 	exit 1
     else
 	cp -f /home/jfulton/.ssh/id_rsa.pub ~/.ssh/id_rsa.pub
+	chmod 0644 ~/.ssh/id_rsa.pub
     fi
 fi
 key=$(cat ~/.ssh/id_rsa.pub)
