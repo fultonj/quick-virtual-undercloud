@@ -17,7 +17,7 @@ if [[ ! -e ~/.ssh/id_rsa.pub ]]; then
 	exit 1
     else
 	cp -f /home/jfulton/.ssh/id_rsa.pub ~/.ssh/id_rsa.pub
-	chmod 0644 ~/.ssh/id_rsa.pub
+	chmod 0600 ~/.ssh/id_rsa.pub
     fi
 fi
 key=$(cat ~/.ssh/id_rsa.pub)
@@ -96,10 +96,18 @@ ssh root@$undr 'echo "stack ALL=(root) NOPASSWD:ALL" | tee -a /etc/sudoers.d/sta
 ssh root@$undr 'chmod 0440 /etc/sudoers.d/stack'
 ssh root@$undr "mkdir /home/stack/.ssh/; chmod 700 /home/stack/.ssh/; echo $key > /home/stack/.ssh/authorized_keys; chmod 600 /home/stack/.ssh/authorized_keys; chcon system_u:object_r:ssh_home_t:s0 /home/stack/.ssh ; chcon unconfined_u:object_r:ssh_home_t:s0 /home/stack/.ssh/authorized_keys; chown -R stack:stack /home/stack/.ssh/ "
 
-#echo "Copying up scripts to be run on $undr"
+echo "Copying up scripts to be run on $undr"
 scp /tmp/nodes.txt stack@$undr:/home/stack/macs.txt
 scp $cwd/repos.sh stack@$undr:/home/stack/
 scp $cwd/ansible-install.sh stack@$undr:/home/stack/
+
+echo "Configuring yum repositories on undercloud"
+ssh root@$undr "sh /home/stack/repos.sh"
+
+echo "Instaling Ansible on undercloud"
+ssh root@$undr "sh /home/stack/ansible-install.sh"
+
+
 
 echo "$undr is ready"
 ssh root@$undr "uname -a"

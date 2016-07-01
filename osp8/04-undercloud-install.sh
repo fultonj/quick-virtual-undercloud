@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # -------------------------------------------------------
 VERSION=8
+SET_OSP_VERSION=1
 INSTACK=0
 NEW_SSH_KEY=0
-INSTALL=1
+INSTALL=0
 IMAGES=0
 NEUTRON=0
 FLAVOR=0
@@ -12,6 +13,14 @@ HYPERVISOR_IP=192.168.122.1
 REPO_IP=192.168.122.252
 INSTACKENV=~/instackenv.json
 SRC=~/quick-virtual-undercloud/osp8
+# -------------------------------------------------------
+if [ $SET_OSP_VERSION -eq 1 ]; then 
+    echo "For OSP, only version $VERSION will be enabled"
+    # disable all OSP repos
+    sudo yum-config-manager --disable rhel-7-server-openstack-*
+    # enable only the desired version of OSP
+    sudo yum-config-manager --enable rhel-7-server-openstack-$VERSION*
+fi
 # -------------------------------------------------------
 if [ $INSTACK -eq 1 ]; then 
     # generate an SSH key and install it on dom0
@@ -32,9 +41,9 @@ if [ $INSTACK -eq 1 ]; then
     if [[ ! -e ~/macs.txt ]]; then
 	echo ""
 	echo "There is no macs.txt. Make one by running the following on the hypervisor." 
-	echo "Then put nodes.txt in stack's homedir. Exiting. "
+	echo "Then put nodes.txt in stack's homedir and save it as macs.txt. Exiting. "
 	echo ""
-	echo "   for vm in \$(sudo virsh list --all | grep overcloud | awk '{print \$2};'); do sudo virsh  domiflist  \$vm | grep provisioning | awk '{print \$5};'; done >> macs.txt"
+	echo "   for vm in \$(sudo virsh list --all | grep overcloud | awk '{print \$2};'); do sudo virsh  domiflist  \$vm | grep provisioning | awk '{print \$5};'; done >> nodes.txt"
 	echo ""
 	exit 1;
     fi
