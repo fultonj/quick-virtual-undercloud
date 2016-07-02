@@ -61,7 +61,7 @@ virt-customize -a $undercloud_qcow --run-command 'sed -i -e "s/BOOTPROTO=.*/BOOT
 
 virt-customize -a $undercloud_qcow --run-command "mkdir /root/.ssh/; chmod 700 /root/.ssh/; echo $key > /root/.ssh/authorized_keys; chmod 600 /root/.ssh/authorized_keys; chcon system_u:object_r:ssh_home_t:s0 /root/.ssh ; chcon unconfined_u:object_r:ssh_home_t:s0 /root/.ssh/authorized_keys "
 
-virt-install --ram 4096 --vcpus 4 --os-variant rhel7 --disk path=/var/lib/libvirt/images/$undercloud_qcow,device=disk,bus=virtio,format=qcow2 --import --noautoconsole --vnc --network network:provisioning --network network:default --network network:tenant --network network:storage --name $undercloud_name
+virt-install --ram 6144 --vcpus 4 --os-variant rhel7 --disk path=/var/lib/libvirt/images/$undercloud_qcow,device=disk,bus=virtio,format=qcow2 --import --noautoconsole --vnc --network network:provisioning --network network:default --network network:tenant --network network:storage --name $undercloud_name
 
 sleep 10
 if [[ ! $(virsh list | grep undercloud) ]]; then
