@@ -2,7 +2,7 @@
 # -------------------------------------------------------
 # configures undercloud VM with all necessary repos
 # -------------------------------------------------------
-URL=http://192.168.122.1/repos
+URL=http://192.168.122.252/repos
 RPM_DIR=~/rpms/
 ISO_DIR=~/iso/
 REPOS=(

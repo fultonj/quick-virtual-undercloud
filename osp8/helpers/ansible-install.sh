@@ -2,12 +2,12 @@
 # Filename:                ansible-install.sh
 # Description:             Installs Ansible & ceph-ansible
 # Supported Langauge(s):   GNU Bash 4.2.x
-# Time-stamp:              <2016-05-10 19:16:29 jfulton> 
+# Time-stamp:              <2016-07-02 15:33:25 jfulton> 
 # -------------------------------------------------------
 # VARIABLES
 RPM_DIR=/tmp/ceph-ansible-rpms/
 PLAYBOOKS=/usr/share/ceph-ansible/
-URL=http://192.168.122.1/repos/ceph-ansible/
+URL=http://192.168.122.252/repos/ceph-ansible/
 RPMS=(
     ansible-1.9.4-1.el7aos.noarch.rpm
     python-crypto-2.6.1-1.el7aos.x86_64.rpm

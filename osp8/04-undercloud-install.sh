@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # -------------------------------------------------------
 VERSION=8
-SET_OSP_VERSION=1
-INSTACK=0
-NEW_SSH_KEY=0
+REPOS=0
+SET_OSP_VERSION=0
+INSTACK=1
+NEW_SSH_KEY=1
 INSTALL=0
 IMAGES=0
 NEUTRON=0
@@ -13,6 +14,11 @@ HYPERVISOR_IP=192.168.122.1
 REPO_IP=192.168.122.252
 INSTACKENV=~/instackenv.json
 SRC=~/quick-virtual-undercloud/osp8
+# -------------------------------------------------------
+if [ $REPOS -eq 1 ]; then
+    sh helpers/repos.sh
+    sh helpers/ansible-install.sh
+fi
 # -------------------------------------------------------
 if [ $SET_OSP_VERSION -eq 1 ]; then 
     echo "For OSP, only version $VERSION will be enabled"
