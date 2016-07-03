@@ -38,7 +38,6 @@ if [ $ADD -eq 1 ]; then
 	--network network:provisioning \
 	--network network:default \
 	--network network:tenant \
-	--network network:api \
 	--network network:storage \
 	--name overcloud-node$i \
 	--dry-run --print-xml > /tmp/overcloud-node$i.xml; \
