@@ -5,10 +5,15 @@ undercloud_qcow=$undercloud_name.qcow2
 undr=192.168.122.253
 cwd=/home/jfulton/git/hub/quick-virtual-undercloud
 hci=/home/jfulton/git/lab/hci0
+full_qcow_name=/var/lib/libvirt/images/rhel-guest-image-7.2-20151102.0.x86_64.qcow2
 # -------------------------------------------------------
-if [[ $(whoami) != "root" ]]; 
-    then 
+if [[ $(whoami) != "root" ]]; then 
     echo "This must be run as root on your testing hypervisor";
+    exit 1
+fi
+# -------------------------------------------------------
+if [[ ! -e $full_qcow_name ]]; then
+    echo "rhel7 image missing; exiting ($full_qcow_name)";
     exit 1
 fi
 # -------------------------------------------------------
@@ -22,7 +27,6 @@ if [[ ! -e ~/.ssh/id_rsa.pub ]]; then
     fi
 fi
 key=$(cat ~/.ssh/id_rsa.pub)
-
 # -------------------------------------------------------
 echo "Configuring ~/.ssh/config to not prompt for non-matching keys and not manage keys via known_hosts"
 cat /dev/null > ~/.ssh/config
@@ -39,7 +43,6 @@ rm -f /var/lib/libvirt/images/$undercloud_qcow
 
 echo "Building a new $undercloud_name"
 # -------------------------------------------------------
-full_qcow_name=/var/lib/libvirt/images/rhel-guest-image-7.2-20151102.0.x86_64.qcow2
 img=$(basename $full_qcow_name)
 pushd /var/lib/libvirt/images/
 
