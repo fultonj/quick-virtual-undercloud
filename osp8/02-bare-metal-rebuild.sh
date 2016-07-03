@@ -31,7 +31,7 @@ if [ $ADD -eq 1 ]; then
     popd
 
     for i in $(echo $VM_COUNT); do 
-	sudo virt-install --ram 4096 --vcpus 2 --os-variant rhel7 \
+	sudo virt-install --ram 4608 --vcpus 2 --os-variant rhel7 \
 	--disk path=/var/lib/libvirt/images/overcloud-node$i.qcow2,device=disk,bus=virtio,format=qcow2 \
 	--disk path=/var/lib/libvirt/images/overcloud-ceph-osd$i.qcow2,device=disk,bus=virtio,format=qcow2 \
 	--noautoconsole --vnc \
