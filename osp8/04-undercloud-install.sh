@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 # -------------------------------------------------------
 VERSION=8
-REPOS=1
-SET_OSP_VERSION=1
+REPOS=0
+SET_OSP_VERSION=0
 INSTACK=1
-NEW_SSH_KEY=1
-INSTALL=1
-IMAGES=1
-NEUTRON=1
-FLAVOR=1
-IRONIC=1
+NEW_SSH_KEY=0
+INSTALL=0
+IMAGES=0
+NEUTRON=0
+FLAVOR=0
+IRONIC=0
 HYPERVISOR_IP=192.168.122.1
 REPO_IP=192.168.122.252
 INSTACKENV=~/instackenv.json
@@ -41,20 +41,25 @@ if [ $INSTACK -eq 1 ]; then
 	exit 1
     fi
     echo -n "Counting installed SSH keys: "
-    ssh stack@$HYPERVISOR_IP "wc -l ~/.ssh/authorized_keys"
+    ssh -i ~/.ssh/id_rsa stack@$HYPERVISOR_IP "wc -l ~/.ssh/authorized_keys"
 
-    # verify we have a list of mac addresses for each overcloud-X VMs's eth0
-    if [[ ! -e ~/macs.txt ]]; then
-	echo ""
-	echo "There is no macs.txt. Make one by running the following on the hypervisor." 
-	echo "Then put nodes.txt in stack's homedir and save it as macs.txt. Exiting. "
-	echo ""
-	echo "   for vm in \$(sudo virsh list --all | grep overcloud | awk '{print \$2};'); do sudo virsh  domiflist  \$vm | grep provisioning | awk '{print \$5};'; done >> nodes.txt"
-	echo ""
-	exit 1;
+    if [[ ! $(rpm -q libvirt-client) ]]; then
+	echo "Installing libvirt-client"	
+	sudo yum install libvirt-client -y
     fi
 
+    echo "Getting list of overcloud node mac addresses"
+    cat /dev/null > ~/macs.txt
+    for vm in $(virsh --connect qemu+ssh://stack@$HYPERVISOR_IP/system list --all | grep overcloud | awk '{print $2};'); do
+	virsh --connect qemu+ssh://stack@$HYPERVISOR_IP/system domiflist  $vm | grep provisioning | awk '{print $5}' >> ~/macs.txt
+    done
+    
     NODE_COUNT=$(wc -l ~/macs.txt | awk {'print $1'})
+    if [ $NODE_COUNT -eq 0 ]; then
+	echo "Unable to get list of mac addresses for overcloud nodes. Exiting."
+	exit 1
+    fi
+	
     NUM=0
     cat /dev/null > $INSTACKENV
     echo "{" >> $INSTACKENV

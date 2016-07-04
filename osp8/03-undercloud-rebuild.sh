@@ -64,7 +64,7 @@ virt-customize -a $undercloud_qcow --run-command 'sed -i -e "s/BOOTPROTO=.*/BOOT
 
 virt-customize -a $undercloud_qcow --run-command "mkdir /root/.ssh/; chmod 700 /root/.ssh/; echo $key > /root/.ssh/authorized_keys; chmod 600 /root/.ssh/authorized_keys; chcon system_u:object_r:ssh_home_t:s0 /root/.ssh ; chcon unconfined_u:object_r:ssh_home_t:s0 /root/.ssh/authorized_keys "
 
-virt-install --ram 6144 --vcpus 4 --os-variant rhel7 --disk path=/var/lib/libvirt/images/$undercloud_qcow,device=disk,bus=virtio,format=qcow2 --import --noautoconsole --vnc --network network:provisioning --network network:default --network network:tenant --network network:storage --name $undercloud_name
+virt-install --ram 6144 --vcpus 2 --os-variant rhel7 --disk path=/var/lib/libvirt/images/$undercloud_qcow,device=disk,bus=virtio,format=qcow2 --import --noautoconsole --vnc --network network:provisioning --network network:default --network network:tenant --network network:storage --name $undercloud_name
 
 sleep 10
 if [[ ! $(virsh list | grep undercloud) ]]; then
@@ -105,9 +105,6 @@ ssh root@$undr 'useradd stack'
 ssh root@$undr 'echo "stack ALL=(root) NOPASSWD:ALL" | tee -a /etc/sudoers.d/stack'
 ssh root@$undr 'chmod 0440 /etc/sudoers.d/stack'
 ssh root@$undr "mkdir /home/stack/.ssh/; chmod 700 /home/stack/.ssh/; echo $key > /home/stack/.ssh/authorized_keys; chmod 600 /home/stack/.ssh/authorized_keys; chcon system_u:object_r:ssh_home_t:s0 /home/stack/.ssh ; chcon unconfined_u:object_r:ssh_home_t:s0 /home/stack/.ssh/authorized_keys; chown -R stack:stack /home/stack/.ssh/ "
-
-echo "Copying up mac addresses of 'baremetal' nodes as ~/macs.txt on $undr"
-scp /tmp/nodes.txt stack@$undr:/home/stack/macs.txt
 
 echo "Copying up a copy of this git repo so the next set of scripts may be run on $undr"
 scp -r $cwd/ stack@$undr:/home/stack/

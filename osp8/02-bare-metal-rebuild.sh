@@ -18,7 +18,6 @@ if [ $DELETE -eq 1 ]; then
     done 
 
     sudo virsh list --all
-    sudo rm -f /tmp/macs.txt /tmp/overcloud-node*
 fi
 # -------------------------------------------------------
 if [ $ADD -eq 1 ]; then 
@@ -45,20 +44,6 @@ if [ $ADD -eq 1 ]; then
 	sudo virsh define --file /tmp/overcloud-node$i.xml; 
     done
     sudo virsh list --all
-
-    for i in $(echo $VM_COUNT); do 
-	mac=$(sudo virsh domiflist overcloud-node$i | grep provisioning | awk '{print $5};'); 
-	echo -e "$mac" >> /tmp/macs.txt; 
-    done
-
-    if [[ $(ping -c 2 undercloud) ]]; then
-	scp /tmp/macs.txt stack@undercloud:/home/stack/macs.txt
-    else
-	echo "After undercloud is built put macs.txt there"
-	echo "  scp /tmp/macs.txt stack@undercloud:/home/stack/macs.txt"
-	cp /tmp/macs.txt .
-	ls macs.txt 
-    fi
 
 fi
 # -------------------------------------------------------
